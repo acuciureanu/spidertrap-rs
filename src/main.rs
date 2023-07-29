@@ -8,6 +8,8 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::sleep;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 fn get_random_delay() -> u64 {
     let mut rng = rand::thread_rng();
@@ -79,7 +81,7 @@ struct Cli {
     #[arg(long, default_value = "8080")]
     port: u16,
     #[arg(long)]
-    webpages: Option<String>,
+    directories: Option<String>,
     #[arg(long, default_value = "5")]
     min_links: i32,
     #[arg(long, default_value = "10")]
@@ -97,25 +99,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let link_range = (cli.min_links, cli.max_links);
     let length_range = (cli.min_length, cli.max_length);
 
-    let webpages = match &cli.webpages {
+    let directories = match &cli.directories {
         Some(path) => {
-            let content = std::fs::read_to_string(path)?;
-            let webpages: Vec<String> = content.lines().map(|line| line.to_string()).collect();
-            Arc::new(webpages)
+            let file = File::open(path)?;
+            let reader = BufReader::new(file);
+            
+            let directories: Vec<String> = reader
+                .lines()
+                .filter_map(|res| match res {
+                    Ok(line) => {
+                        if line.trim_start().starts_with('#') {
+                            None
+                        } else {
+                            Some(line)
+                        }
+                    }
+                    Err(_) => None,
+                })
+                .collect();
+            
+            Arc::new(directories)
         }
         None => {
-            eprintln!("No webpages file provided. Using default configuration.");
+            eprintln!("No directories file provided. Using default configuration.");
             Arc::new(Vec::new())
         }
-    };
+    };    
 
     let addr = SocketAddr::from(([0, 0, 0, 0], cli.port));
 
     let make_svc = make_service_fn(move |_conn| {
-        let webpages = Arc::clone(&webpages);
+        let directories = Arc::clone(&directories);
         async move {
             Ok::<_, hyper::Error>(service_fn(move |req| {
-                handle(req, Arc::clone(&webpages), link_range, length_range)
+                handle(req, Arc::clone(&directories), link_range, length_range)
             }))
         }
     });

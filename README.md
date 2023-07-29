@@ -21,7 +21,7 @@ cargo run
 ```
 
 ```bash
-cargo run -- --port 8080 --webpages ./webpages.txt --min-links 5 --max-links 10 --min-length 3 --max-length 20
+cargo run -- --port 8080 --directories ./web-directories.txt --min-links 5 --max-links 10 --min-length 3 --max-length 20
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ Usage: spidertrap-rs [OPTIONS]
 
 Options:
       --port <PORT>              [default: 8080]
-      --webpages <WEBPAGES>
+      --directories <DIRECTORIES>
       --min-links <MIN_LINKS>    [default: 5]
       --max-links <MAX_LINKS>    [default: 10]
       --min-length <MIN_LENGTH>  [default: 3]
