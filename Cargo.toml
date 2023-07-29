@@ -1,6 +1,6 @@
 [package]
 name = "spidertrap-rs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/acuciureanu/spidertrap-rs"
 
@@ -30,4 +30,9 @@ ci = ["github"]
 # The installers to generate for each app
 installers = []
 # Target platforms to build apps for (Rust target-triple syntax)
-targets = ["x86_64-unknown-linux-gnu", "x86_64-apple-darwin", "x86_64-pc-windows-msvc", "aarch64-apple-darwin"]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+    "aarch64-apple-darwin",
+]
